@@ -1,10 +1,10 @@
 from django.db import models
 
 class Record(models.Model):
-    models.DateField(auto_now=True, auto_now_add=True)
+    created_at=models.DateField(auto_now_add=True)
     first_name=models.CharField(max_length=50)
     last_name=models.CharField(max_length=50)
-    emamil=models.EmailField( max_length=254)
+    email=models.EmailField( max_length=254)
     phone=models.CharField(max_length=12)
     address=models.CharField(max_length=50)
     city=models.CharField( max_length=50)
