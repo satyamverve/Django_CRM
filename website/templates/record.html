@@ -9,10 +9,16 @@
     </div>
     <div class="card-body">
       <p class="card-text">
+        <strong>ID:</strong>{{ customer_record.id }}
+      </p>
+      <p class="card-text">
         <strong>Email:</strong>{{ customer_record.email }}
       </p>
       <p class="card-text">
         <strong>Phone:</strong>{{ customer_record.phone }}
+      </p>
+      <p class="card-text">
+        <strong>Country:</strong>{{ customer_record.country }}
       </p>
       <p class="card-text">
         <strong>City:</strong>{{ customer_record.city }}
@@ -24,14 +30,15 @@
         <strong>ZipCode:</strong>{{ customer_record.zip_code }}
       </p>
       <p class="card-text">
-        <strong>Created_at:</strong>{{ customer_record.created_at }}
+        <strong>Created At:</strong>{{ customer_record.created_at }}
       </p>
       <p class="card-text">
-        <strong>ID:</strong>{{ customer_record.id }}
+        <strong>Address:</strong>{{ customer_record.address }}
       </p>
     </div>
   </div>
 <br/>
 <a href="{% url 'home' %}"class= "btn btn-secondary">Back</a>
 <a href="{% url 'delete_record' customer_record.id %}"class= "btn btn-danger">Delete</a>
+<a href="{% url 'update_record' customer_record.id %}"class= "btn btn-secondary">Update Record</a>
 {% endblock %}
