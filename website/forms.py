@@ -19,6 +19,12 @@ class SignUpForm(UserCreationForm):
     class Meta():
         model=User
         fields= ('username', 'first_name', 'last_name', 'email','password1', 'password2', 'country') #django expects password1 and password2
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_active = False  # Set is_active to False by default
+
+        if commit:
+            user.save()
         
 
     #copy pasted this code 

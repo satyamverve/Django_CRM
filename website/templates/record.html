@@ -43,6 +43,8 @@
 {% if perms.website.delete_record %}
   <a href="{% url 'delete_record' customer_record.id %}"class= "btn btn-danger">Delete</a>
 {% endif %}
-
-    <a href="{% url 'update_record' customer_record.id %}"class= "btn btn-secondary">Update Record</a>
+{% if perms.website.delete_record %}
+  <a href="{% url 'update_record' customer_record.id %}"class= "btn btn-secondary">Update Record</a>
+{% endif %}
 {% endblock %}
+

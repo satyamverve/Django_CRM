@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-zoc8nc_g_=5z*#xe+j)lzmx#4rhd3t6jj2r0y$-)$drg^ptf!!
 DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.1.114', 'localhost', '127.0.0.1','*']
-
+# python manage.py runserver 0.0.0.0:8000
+# http://192.168.1.114:8000
 
 # Application definition
 
@@ -103,6 +104,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# Define the login URL
+LOGIN_URL = '/custom-login/'  # Adjust the URL as needed
+
 
 
 # Internationalization

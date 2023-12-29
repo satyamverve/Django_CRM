@@ -5,9 +5,19 @@ from django.contrib import messages
 from .forms import SignUpForm, AddRecordForm
 from .models import Record
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import permission_required
+
+from django.contrib.auth.views import LoginView
+
+class CustomLoginView(LoginView):
+    template_name = 'home.html'
+
+    def get_success_url(self):
+        # Redirect to the next parameter if available, otherwise to a default URL
+        return self.request.GET.get('next', '/')
 
 @csrf_protect
+@permission_required('website.view_record',login_url='/custom_login/')
 def home(request):
     records = Record.objects.all()
     user=request.user
@@ -44,11 +54,11 @@ def logout_user(request):
 @csrf_protect   
 def register_user(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = SignUpForm(request.POST) 
         if form.is_valid():
             user=form.save()
-            group=Group.objects.get(name='Editor')
-            user.groups.add(group)
+            # group=Group.objects.get(name='Editor')
+            # user.groups.add(group)
             #Authenticate and login
             # username = form.cleaned_data['username']
             # password = form.cleaned_data['password1']
@@ -74,6 +84,7 @@ def customer_record(request, pk):
 
 
 @csrf_protect
+@permission_required('website.delete_record',login_url='/custom_login/')  
 def delete_record(request, pk):
     if request.user.is_authenticated:
         delete_it= Record.objects.get(id=pk)
@@ -84,21 +95,29 @@ def delete_record(request, pk):
         messages.success(request, "You must be login first..!")
         return redirect('home')
 
-@csrf_protect   
+# import logging
+# logger = logging.getLogger(__name__)
+
+# @csrf_protect
+@permission_required('website.can_create_record', login_url='/custom_login/')
 def add_record(request):
-    form= AddRecordForm(request.POST or None) #None means they want something maybe they want to change something
+    # logger.debug(f"User: {request.user}, Permissions: {request.user.get_all_permissions()}")
     if request.user.is_authenticated:
-        if request.method =="POST":
+        form = AddRecordForm(request.POST or None)
+
+        if request.method == "POST":
             if form.is_valid():
-                add_record=form.save()
+                add_record = form.save()
                 messages.success(request, "Record Added Successfully...")
                 return redirect('home')
-        return render(request, 'add_record.html', {'form':form})
+
+        return render(request, 'add_record.html', {'form': form})
     else:
-        messages.success(request,"You must be logged In...!!!")
+        messages.success(request, "You must be logged in...!!!")
         return redirect('home')
 
-@csrf_protect   
+@csrf_protect
+@permission_required('website.change_record',login_url='/custom_login/')  
 def update_record(request, pk):
     if request.user.is_authenticated:
         current_record= Record.objects.get(id=pk)
