@@ -11,7 +11,10 @@
 	{{ form.as_p }}
 
 <br/>
-  <button type="submit" class="btn btn-secondary">Add Record</button>
+{% if perms.website.add_record %}
+<button type="submit" class="btn btn-secondary">Add Record</button>
+{% endif %}
+
    <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
 
 </form>
