@@ -1,3 +1,5 @@
+# views.py
+
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
@@ -6,8 +8,30 @@ from .forms import SignUpForm, AddRecordForm
 from .models import Record
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import permission_required
-
 from django.contrib.auth.views import LoginView
+from django.db.models import Q
+from django.http import HttpResponse
+
+from django.db.models import Q
+
+def search(request):
+    if request.method == "POST":
+        searched = request.POST.get('searched', '').strip()
+        if searched:
+            items = ['first_name', 'last_name','email', 'phone', 'city', 'state', 'zip_code', 'created_at']
+            query = Q()
+            for item in items:
+                query |= Q(**{f'{item}__icontains': searched})
+            records = Record.objects.filter(query)
+            if records:
+                return render(request, 'home.html', {'searched': searched, 'records': records})
+            else:
+                messages.info(request, "No records found for the searched item.")
+        else:
+            messages.warning(request, "Please enter a search term.")
+    return render(request, 'home.html', {})
+
+
 
 class CustomLoginView(LoginView):
     template_name = 'home.html'
@@ -16,12 +40,30 @@ class CustomLoginView(LoginView):
         # Redirect to the next parameter if available, otherwise to a default URL
         return self.request.GET.get('next', '/')
 
+
 @csrf_protect
 @permission_required('website.view_record',login_url='/custom_login/')
 def home(request):
-    records = Record.objects.all()
-    user=request.user
-    return render(request, 'home.html', {'records': records, 'user':user})
+    searched = request.GET.get('searched', '')
+    items = ['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'zip_code', 'created_at']
+
+    if searched:
+        query = Q()
+        for item in items:
+            query |= Q(**{f'{item}__icontains': searched})
+        records = Record.objects.filter(query)
+        if records:
+            return render(request, 'home.html', {'searched': searched, 'records': records})
+        else:
+            messages.info(request, "No records found for the searched item.")
+    else:
+        records = Record.objects.all()
+        
+
+    user = request.user
+    return render(request, 'home.html', {'records': records, 'user': user, 'searched': searched})
+
+
 
 @csrf_protect
 def login_user(request):
@@ -37,7 +79,7 @@ def login_user(request):
                 messages.success(request, "You have been logged in!")
                 return redirect('home')
         else:
-            messages.error(request, "Invalid credentials. Please try again.")
+            messages.error(request, "Oops! It seems like the credentials provided are invalid, or your account is pending for approval by the admin. Please be patient and try logging in again. If you're awaiting approval, our admin will get to it as soon as possible. Thank you for your understanding!")
 
     # If the request method is not POST or the authentication failed, render the form again
     form = AuthenticationForm()
@@ -64,7 +106,7 @@ def register_user(request):
             # password = form.cleaned_data['password1']
             # user = authenticate(request, username=username, password=password) #why password not password1!!, coz we took password1 and signed it to variable called password
             # login(request, user)
-            messages.success(request, "You have successfully registered")
+            messages.success(request, "You have successfully registered, wait for admin approval before login..")
             return redirect('login')
     else:
         form= SignUpForm()
@@ -95,13 +137,9 @@ def delete_record(request, pk):
         messages.success(request, "You must be login first..!")
         return redirect('home')
 
-# import logging
-# logger = logging.getLogger(__name__)
-
-# @csrf_protect
-@permission_required('website.can_create_record', login_url='/custom_login/')
+@csrf_protect
+@permission_required('website.add_record', login_url='/custom_login/')
 def add_record(request):
-    # logger.debug(f"User: {request.user}, Permissions: {request.user.get_all_permissions()}")
     if request.user.is_authenticated:
         form = AddRecordForm(request.POST or None)
 
@@ -123,7 +161,7 @@ def update_record(request, pk):
         current_record= Record.objects.get(id=pk)
         form= AddRecordForm(request.POST or None, instance= current_record)
         if form.is_valid():
-            add_record=form.save()
+            update_record=form.save()
             messages.success(request, "Record Updated Successfully...")
             return redirect('home')
         return render(request, 'update_record.html', {'form':form})

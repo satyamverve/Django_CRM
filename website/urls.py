@@ -1,3 +1,4 @@
+# urls.py
 from django.urls import path
 from . import views
 from .views import CustomLoginView
@@ -13,5 +14,6 @@ urlpatterns = [
     path('add_record/', views.add_record, name='add_record'),
     path('update/<int:pk>', views.update_record, name='update_record'),
     path('custom_login/', CustomLoginView.as_view(), name='custom_login'),
+    path('search/', views.search, name='search'),
 
 ]

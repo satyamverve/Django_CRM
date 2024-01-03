@@ -10,15 +10,15 @@ from django_countries.widgets import CountrySelectWidget
 
 
 
+
 class SignUpForm(UserCreationForm):
     email=forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
     first_name=forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control','placeholder':'First Name'}))
     last_name=forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Last Name'}))
-    country = forms.ChoiceField(choices=COUNTRY_CHOICES, required=True)
     
     class Meta():
         model=User
-        fields= ('username', 'first_name', 'last_name', 'email','password1', 'password2', 'country') #django expects password1 and password2
+        fields= ('username', 'first_name', 'last_name', 'email','password1', 'password2') #django expects password1 and password2
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False  # Set is_active to False by default
@@ -59,9 +59,14 @@ class AddRecordForm(forms.ModelForm):
     state = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"State", "class":"form-control"}), label="")
     zip_code = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Zip Code", "class":"form-control"}), label="")
    
+    country = CountryField(default='India').formfield(widget=CountrySelectWidget(attrs={
+        "placeholder":"Select Country","class": "form-control"}), label="")  # Use CountrySelectWidget for the country field
+
+
     class Meta:
         model = Record
-        exclude = ("user",)
+        # exclude = ("user",)   
+        fields=('first_name', 'last_name', 'email', 'phone', 'address', 'city', 'state', 'zip_code', 'country')
         
 
 

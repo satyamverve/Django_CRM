@@ -3,13 +3,18 @@
   <div class="card">
     <div class="card-header">
       <strong>
-        {{ customer_record.first_name }}
-        {{ customer_record.last_name }}
+        View Record
       </strong>
     </div>
     <div class="card-body">
       <p class="card-text">
         <strong>ID:</strong>{{ customer_record.id }}
+      </p>
+      <p class="card-text">
+        <strong>First Name:</strong>{{ customer_record.first_name }}
+      </p>
+      <p class="card-text">
+        <strong>Last Name:</strong>{{ customer_record.last_name }}
       </p>
       <p class="card-text">
         <strong>Email:</strong>{{ customer_record.email }}
@@ -18,7 +23,7 @@
         <strong>Phone:</strong>{{ customer_record.phone }}
       </p>
       <p class="card-text">
-        <strong>Country:</strong>{{ customer_record.country }}
+        <strong>Country:</strong>{{ customer_record.country.name }}
       </p>
       <p class="card-text">
         <strong>City:</strong>{{ customer_record.city }}
@@ -36,15 +41,24 @@
         <strong>Address:</strong>{{ customer_record.address }}
       </p>
     </div>
-  </div>
+  </div>  
 <br/>
-<a href="{% url 'home' %}"class= "btn btn-secondary">Back</a>
+<a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
 
-{% if perms.website.delete_record %}
-  <a href="{% url 'delete_record' customer_record.id %}"class= "btn btn-danger">Delete</a>
-{% endif %}
-{% if perms.website.delete_record %}
-  <a href="{% url 'update_record' customer_record.id %}"class= "btn btn-secondary">Update Record</a>
-{% endif %}
+  {% if perms.website.delete_record %}
+    <a href="#" class="btn btn-danger" onclick="confirmDelete('{{ customer_record.id }}')">Delete</a>
+  {% endif %}
+  {% if perms.website.change_record %}
+    <a href="{% url 'update_record' customer_record.id %}" class="btn btn-secondary">Update Record</a>
+  {% endif %}
+
+  <script>
+    function confirmDelete(recordId) {
+        var confirmMessage = "Are you sure you want to delete this record?";
+        if (confirm(confirmMessage)) {
+            window.location.href = "{% url 'delete_record' 0 %}".replace('0', recordId);
+        }
+    }
+  </script>
 {% endblock %}
 
